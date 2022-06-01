@@ -4,39 +4,20 @@
   box-sizing: border-box;
 }
 
-html {
-  @media (max-width: 1080px) {
-    font-size: 93.75%; // 15px
-  }
-
-  @media (max-width: 720px) {
-    font-size: 87.5%; // 14px
+@media (max-width: 1080px) {
+  html {
+    font-size: 93.75%;
   }
 }
-
-@font-face {
-  font-family: "GT Eesti Pro Display";
-  src: url("/fonts/GT-Eesti-Display-Regular.otf");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "GT Eesti Pro Display";
-  src: url("/fonts/GT-Eesti-Display-Medium.otf");
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-}
-
-body {
-  background: var(--background);
+@media (max-width: 720px) {
+  html {
+    font-size: 87.5%;
+  }
 }
 
 body, button, textarea, input {
-  color: var(--primary);
-  font: 400 1rem "GT Eesti Pro Display", sans-serif;
+  color: $primary;
+  font: 400 1rem "Montserrat", sans-serif;
 }
 
 a {
@@ -46,8 +27,8 @@ a {
 
 button {
   border: 0;
+}
 
-  &:hover {
-    cursor: pointer;
-  }
+button:hover {
+  cursor: pointer;
 }
