@@ -5,8 +5,8 @@ const BASE_URL_IMAGE = {
   small: 'https://image.tmdb.org/t/p/w500'
 }
 
-
 const movies = []
+let movieActive = ''
 const moviesElement = document.getElementById('movies')
 
 function getUrlMovie(movieId) {
@@ -31,7 +31,6 @@ function setMainMovie(movie) {
   const info = document.querySelector('.feature__movie span')
   const rating = document.querySelector('.rating strong')
 
-
   title.innerHTML = movie.title
   description.innerHTML = movie.overview
   rating.innerHTML = movie.vote_average
@@ -40,7 +39,19 @@ function setMainMovie(movie) {
   appImage.setAttribute('src', movie.image.original)
 }
 
+function changeMovieActiveInList(newMovieActive) {
+  const movieActiveCurrent = document.getElementById(movieActive)
+  movieActiveCurrent.classList.remove('active-movie')
+
+  const movieActiveNew = document.getElementById(newMovieActive)
+  movieActiveNew.classList.add('active-movie')
+
+  movieActive = newMovieActive
+}
+
 function changeMainMovie(movieId) {
+  changeMovieActiveInList(movieId)
+
   const movie = movies.find(movie => movie.id === movieId)
 
   setMainMovie(movie)
@@ -74,6 +85,8 @@ function addMovieInList(movie) {
   const movieElement = document.createElement('li')
   movieElement.classList.add('movie')
 
+  movieElement.setAttribute('id', movie.id)
+
   const genre = `<span>${movie.genre}</span>`
   const title = `<strong>${movie.title}</strong>`
 
@@ -84,33 +97,74 @@ function addMovieInList(movie) {
   moviesElement.appendChild(movieElement)
 }
 
+async function getMovieData(movieId) {
+  try {
+    let data = await fetch(getUrlMovie(movieId))
+    data = await data.json()
+  
+    const movieData = {
+      id: movieId,
+      title: data.title,
+      overview: data.overview,
+      vote_average: data.vote_average,
+      genre: data.genres[0].name,
+      release: data.release_date.split('-')[0],
+      image: {
+        original: BASE_URL_IMAGE.original.concat(data.backdrop_path),
+        small: BASE_URL_IMAGE.small.concat(data.backdrop_path),
+      }
+    }
+  
+    return movieData
+  } catch(error) {
+    console.log('mensagem de erro:', error.message)
+  }
+
+  return null
+}
+
 function loadMovies() {
-  const LIST_MOVIES = ['tt12801262', 'tt5109280', 'tt5562070', 'tt11084896', 'tt4823776', 'tt2948372', 'tt2380307', 'tt3521164', 'tt2096673', '/tt1049413', 'tt0114709', 'tt0198781', 'tt0382932', 'tt0317705', 'tt0110357']
-  LIST_MOVIES.map((movie, index) => {
-    fetch(getUrlMovie(movie)).then(response => response.json()).then(data => {
+  const LIST_MOVIES = ['tt12801262', 'tt4823776']
+  
+  LIST_MOVIES.map(async (movie, index) => {
+    const movieData = await getMovieData(movie)
 
-      const movieData = {
-        id: movie,
-        title: data.title,
-        overview: data.overview,
-        vote_average: data.vote_average,
-        genre: data.genres[0].name,
-        release: data.release_date.split('-')[0],
-        image: {
-          original: BASE_URL_IMAGE.original.concat(data.backdrop_path),
-          small: BASE_URL_IMAGE.small.concat(data.backdrop_path),
-        }
-      }
+    movies.push(movieData)
+    addMovieInList(movieData)
 
-      movies.push(movieData)
+    if(index === 0) {
+      setMainMovie(movieData)
+      movieActive = movieData.id
 
-      if(index === 0) {
-        setMainMovie(movieData)
-      }
-
-      addMovieInList(movieData)
-    })
+      const movieActiveNew = document.getElementById(movieActive)
+      movieActiveNew.classList.add('active-movie')
+    }
   })
 }
+
+const buttonAddMovie = document.getElementById('add__movie')
+
+function formattedMovieId(movieId) {
+  if(movieId.includes('https://www.imdb.com/title/')) {
+    const id = movieId.split('/')[4]
+    console.log(id)
+    return id
+  }
+  
+  return movieId
+}
+
+buttonAddMovie.addEventListener('submit', async function(event) {
+  event.preventDefault()
+
+  const newMovieId = formattedMovieId(event.target['movie'].value)
+  const newMovie = await getMovieData(newMovieId)
+
+  if(newMovie?.id) {
+    addMovieInList(newMovie)
+  }
+
+  event.target['movie'].value = ''
+})
 
 loadMovies()
