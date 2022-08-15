@@ -14,7 +14,7 @@ O protótipo desse website foi desenvolvido pelo [**Itai Bracha**](https://www.f
 ## 🚀 Tecnologias
 
 - HTML
-- CSS
+- SASS
 - JavaScript
 - [API TMDB](https://www.themoviedb.org/documentation/api)
 
